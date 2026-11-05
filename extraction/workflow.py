@@ -10,28 +10,18 @@ def build_steps(options):
     root = Path(options.save_root).resolve()
     raw = root / "raw_frames"
     plan = Plan(PROJECT)
-    if options.video_step_size < 1 or options.video_ds_ratio <= 0:
-        raise ValueError("video_step_size and video_ds_ratio must be positive")
+    if options.num_frame < 1 or options.max_image_size < 1:
+        raise ValueError("num_frame and max_image_size must be positive")
     video = Path(options.video_path).resolve()
-    plan.command(
+    report = root / "extraction.json"
+    plan.python(
         "extract.frames",
-        [
-            "ffmpeg",
-            "-nostdin",
-            "-y",
-            "-i",
-            video,
-            "-vf",
-            f"select='not(mod(n,{options.video_step_size}))',scale=iw*{options.video_ds_ratio}:ih*{options.video_ds_ratio},setsar=1:1",
-            "-vsync",
-            "vfr",
-            "-q:v",
-            "1",
-            raw / "%05d.png",
-        ],
+        "extraction/extract_video.py",
+        ["--video_path", video, "--output_dir", raw, "--report", report,
+         "--num_frame", options.num_frame, "--max_image_size", options.max_image_size],
         [video],
-        [raw],
-        [raw],
+        [raw, report],
+        [raw, report],
         mkdir=[raw],
     )
     return plan.steps

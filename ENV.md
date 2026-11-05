@@ -61,33 +61,21 @@ Some steps require special handling (e.g., download weights and install other li
 Download the [weights](https://facesyntheticspubwedata.z6.web.core.windows.net/iccv-2025/models/foreground-segmentation-model-vitl16_384.onnx) of the Soft Foreground Segmentation model from [DAViD](https://github.com/microsoft/DAViD), then put it to `matting/model`.
 
 ## Geometry Reconstruction
-Download the 2DGS repository and install the required libraries for 2DGS:
+Install the 2DGS libraries from the recursively cloned submodule (run from the STFR root):
 
 ```
-cd reconstruction
-git clone https://github.com/hbb1/2d-gaussian-splatting.git --recursive
-cd 2d-gaussian-splatting
-pip install submodules/diff-surfel-rasterization --no-build-isolation
-pip install submodules/simple-knn --no-build-isolation
+pip install reconstruction/2d-gaussian-splatting/submodules/diff-surfel-rasterization --no-build-isolation
+pip install reconstruction/2d-gaussian-splatting/submodules/simple-knn --no-build-isolation
 ```
 
 Then, install [COLMAP](https://github.com/colmap/colmap) following the [instructions](https://colmap.github.io/install.html). 
 
 ## Registration
-First, install ibug face-raleted libs:
+First, install the ibug face libraries from the recursively cloned submodules (run from the STFR root). Git LFS is required for the face detection weights:
 ```
-cd registration
-
-git clone https://github.com/hhj1897/face_detection.git
-cd face_detection
-git lfs pull
-pip install -e .
-cd ..
-
-git clone https://github.com/hhj1897/face_alignment.git
-cd face_alignment
-pip install -e .
-cd ..
+git -C registration/face_detection lfs pull
+pip install -e registration/face_detection
+pip install -e registration/face_alignment
 ```
 
 Then, download [weights](https://drive.google.com/drive/folders/1u_COcmxh--hNjKpdP0162HKGyDLDP12t?usp=drive_link) of my custom landmark detector and put it into `registration/pretrained`.

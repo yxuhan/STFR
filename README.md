@@ -13,7 +13,7 @@ To achieve this, the code is divided into the following steps:
 
 <img src="misc/pipeline.png" width="100%" >
 
-**1. Video Frame Extraction**: Implemented using the `ffmpeg` library. One frame is saved every `video_step_size` frames, and the resolution (scaling ratio) of the saved frames can be specified via `video_ds_ratio`.
+**1. Video Frame Extraction**: Implemented using the `ffmpeg` library. The requested number of frames is set by `num_frame`; `max_image_size` limits the longest image dimension while preserving aspect ratio.
 
 **2. Matting**: Foreground masks for each frame are obtained using [DAViD](https://github.com/microsoft/DAViD). These masks guide the geometry reconstruction module to focus only on the facial geometry and ignore the background.
 
@@ -26,13 +26,24 @@ To achieve this, the code is divided into the following steps:
 **6. Texture Reconstruction**: I implemented an efficient and high-quality UV texture optimization method based on the [2D hash grid of Instant-NGP](https://arxiv.org/abs/2201.05989). I use the 2D hash grid to parameterize the UV texture, and then constrain the photometric loss (geometry-aware weighted L1 + LPIPS) between the re-rendered image and the captured image. 
 
 
+## Installation
+
+Clone STFR with its dependencies (install Git LFS first):
+
+```bash
+git lfs install
+git clone --recurse-submodules https://github.com/yxuhan/STFR.git
+```
+
+For an existing clone, run `git submodule update --init --recursive`.
+
 ## Run
 First, configure the environment according to [ENV.md](ENV.md). Then, download the [example video](https://drive.google.com/file/d/1zwl7SW_aEsNBpEqpTHpCewi6RjE4NwOe/view?usp=sharing) into the `data` directory. The command to run the code is as follows:
 ```
 CUDA_VISIBLE_DEVICES=0 python run.py \
     --video_path data/ljf.MOV \
-    --video_step_size 10 \
-    --video_ds_ratio 0.375 \
+    --num_frame 80 \
+    --max_image_size 960 \
     --reg_close_eye 1 \
     --save_root workspace/ljf
 ```
@@ -45,8 +56,8 @@ For importing the reconstructed mesh into MetaHuman, use `--fill_eye_holes` to c
 ```
 CUDA_VISIBLE_DEVICES=0 python run.py \
     --video_path data/ljf.MOV \
-    --video_step_size 10 \
-    --video_ds_ratio 0.375 \
+    --num_frame 80 \
+    --max_image_size 960 \
     --reg_close_eye 1 \
     --save_root workspace/ljf \
     --fill_eye_holes \

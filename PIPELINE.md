@@ -17,7 +17,7 @@ and descriptor schema, rather than a cross-stage Python import.
 Run commands from the project root, with the configured Python environment:
 
 ```bash
-python extraction/run_extraction.py --data_root workspace/person --video_path data/person.mp4 --video_step_size 10 --video_ds_ratio .5
+python extraction/run_extraction.py --data_root workspace/person --video_path data/person.mp4 --num_frame 80 --max_image_size 960
 python matting/run_stage.py --data_root workspace/person --device 0
 python reconstruction/run_reconstruction.py --data_root workspace/person --device 0 --gs_port 6010
 python refinement/run_refinement.py --data_root workspace/person --device 0

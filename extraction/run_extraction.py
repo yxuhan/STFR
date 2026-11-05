@@ -10,6 +10,6 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--data_root', required=True)
     parser.add_argument('--video_path', required=True)
-    parser.add_argument('--video_step_size', type=int, default=10)
-    parser.add_argument('--video_ds_ratio', type=float, default=.5)
+    parser.add_argument('--num_frame', type=int, default=80)
+    parser.add_argument('--max_image_size', type=int, default=960)
     raise SystemExit(stage_main(parser, build_steps, 'extract', Path(__file__).resolve().parents[1]))

@@ -23,10 +23,10 @@ def build_plan(options, sections):
             [
                 "--video_path",
                 str(Path(options.video_path).resolve()),
-                "--video_step_size",
-                str(options.video_step_size),
-                "--video_ds_ratio",
-                str(options.video_ds_ratio),
+                "--num_frame",
+                str(options.num_frame),
+                "--max_image_size",
+                str(options.max_image_size),
             ],
         ),
         "mat": ("matting/run_stage.py", []),
@@ -83,8 +83,8 @@ def build_plan(options, sections):
 def main():
     parser = argparse.ArgumentParser(description="STFR checked stage pipeline")
     parser.add_argument("--video_path", default="workspace/0227.mp4")
-    parser.add_argument("--video_step_size", type=int, default=10)
-    parser.add_argument("--video_ds_ratio", type=float, default=0.5)
+    parser.add_argument("--num_frame", type=int, default=80)
+    parser.add_argument("--max_image_size", type=int, default=960)
     parser.add_argument("--save_root", "--data_root", dest="save_root", default="workspace/0227")
     parser.add_argument("--func", default="extract-mat-recon-refine-reg-tex")
     parser.add_argument(

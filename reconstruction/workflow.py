@@ -80,13 +80,26 @@ def build_steps(options, colmap_only=False):
                 sparse,
             ],
             [db, images],
-            bins,
+            [sparse, *bins],
             [sparse],
             mkdir=[sparse],
         )
         # COLMAP's mapper touches the input SQLite database during successful reads.
         # Its content is validated by the preceding feature/matching output records.
         plan.steps[-1].mutable_inputs = [db]
+        selection_dir = root / "colmap_model_selection"
+        plan.python(
+            "recon.colmap.select_model",
+            "reconstruction/select_colmap_model.py",
+            ["--sparse_dir", sparse, "--report_dir", selection_dir],
+            [sparse],
+            [selection_dir / "selection.json", *bins],
+            [selection_dir],
+            fresh=False,
+        )
+        # Bundle adjustment updates the chosen model in place. The mapper's
+        # final sparse-directory fingerprint still detects changed candidates.
+        plan.steps[-1].mutable_inputs = [sparse]
         plan.command(
             "recon.colmap.bundle_adjust",
             [

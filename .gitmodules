@@ -1,0 +1,9 @@
+[submodule "2d-gaussian-splatting"]
+	path = reconstruction/2d-gaussian-splatting
+	url = https://github.com/hbb1/2d-gaussian-splatting.git
+[submodule "face_detection"]
+	path = registration/face_detection
+	url = https://github.com/hhj1897/face_detection.git
+[submodule "face_alignment"]
+	path = registration/face_alignment
+	url = https://github.com/hhj1897/face_alignment.git
