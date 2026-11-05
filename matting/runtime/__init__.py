@@ -23,13 +23,9 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 """
 
-from .depth_estimator import RelativeDepthEstimator
-from .multi_task_estimator import MultiTaskEstimator
 from .pixelwise_estimator import PixelwiseEstimator, RuntimeSession, preprocess_img
 from .soft_foreground_segmenter import SoftForegroundSegmenter
-from .surface_normal_estimator import SurfaceNormalEstimator
 from .utils import composite_model_output_to_image, prepare_image_for_model
-from .visualize import visualize_relative_depth_map
 
 __all__ = [
     "PixelwiseEstimator",
@@ -37,12 +33,5 @@ __all__ = [
     "RuntimeSession",
     "prepare_image_for_model",
     "composite_model_output_to_image",
-    "ONNX_EP",
-    "ModelNotFoundError",
-    "ModelError",
-    "RelativeDepthEstimator",
-    "visualize_relative_depth_map",
     "SoftForegroundSegmenter",
-    "SurfaceNormalEstimator",
-    "MultiTaskEstimator",
 ]

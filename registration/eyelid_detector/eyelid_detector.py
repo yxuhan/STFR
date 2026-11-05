@@ -4,8 +4,7 @@ import numpy as np
 import torch
 import mediapipe as mp
 import onnxruntime
-from .models import *
-from .eyelid_utils import *
+from .eyelid_utils import get_box_from_landmarks, get_crop_from_box, pad_and_crop, decode_landmarks
 
 
 class MediaPipeFaceDetector():

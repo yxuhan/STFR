@@ -1,14 +1,10 @@
 import argparse
 import os
-from typing import Optional
-
-import sys
-sys.path.append(os.path.join(os.path.dirname(__file__), "runtime"))
 
 import cv2
 import numpy as np
 from tqdm import tqdm
-from soft_foreground_segmenter import SoftForegroundSegmenter
+from runtime.soft_foreground_segmenter import SoftForegroundSegmenter
 
 
 def main():

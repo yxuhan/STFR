@@ -24,6 +24,8 @@ parser = argparse.ArgumentParser(formatter_class=argparse.ArgumentDefaultsHelpFo
 parser.add_argument('--device', type=str, default="0")
 parser.add_argument('--syn', type=int, default=1)
 parser.add_argument('--data_root', type=str, default="xxx")
+parser.add_argument('--mesh_name', type=str, default="final_hack.obj")
+parser.add_argument('--variant', type=str, default="")
 opt, _ = parser.parse_known_args()
 
 opt.meta_file_path = os.path.join(opt.data_root, "transforms.json")
@@ -159,11 +161,11 @@ class DiffusionSampler:
             device=self.device, meta_file_path=opt.meta_file_path, mode="train",
         )
         self.dataloader = DataLoader(train_data, batch_size=1, shuffle=False)
-        self._load_geometry(os.path.join(opt.data_root, "final_hack.obj"))
+        self._load_geometry(os.path.join(opt.data_root, opt.mesh_name))
 
         self.HEIGHT = train_data.HEIGHT
         self.WIDTH = train_data.WIDTH
-        data_root = opt.data_root
+        data_root = os.path.join(opt.data_root, opt.variant)
         self.save_root = os.path.join(data_root, "uv")
         self.save_vis_root = os.path.join(data_root, "uv_vis")
         self.save_mask_root = os.path.join(data_root, "uv_mask")

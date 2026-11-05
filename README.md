@@ -35,11 +35,23 @@ CUDA_VISIBLE_DEVICES=0 python run.py \
     --video_ds_ratio 0.375 \
     --reg_close_eye 1 \
     --save_root workspace/ljf
-
-The reg_close_eye parameter specifies whether the captured subject had their eyes closed. When reg_close_eye=1, the code uses a closed-eye template for registration; otherwise, an open-eye template is applied.
 ```
 
+The reg_close_eye parameter specifies whether the captured subject had their eyes closed. When reg_close_eye=1, the code uses a closed-eye template for registration; otherwise, an open-eye template is applied.
+
 The above code takes approximately 21 minutes to execute on a single NVIDIA RTX 3090 GPU.
+
+For importing the reconstructed mesh into MetaHuman, use `--fill_eye_holes` to close the eye holes and optimize the eye textures, enabling landmark detection on the reconstructed mesh; add `--to_metahuman 1` to export the mesh in UE5 canonical space:
+```
+CUDA_VISIBLE_DEVICES=0 python run.py \
+    --video_path data/ljf.MOV \
+    --video_step_size 10 \
+    --video_ds_ratio 0.375 \
+    --reg_close_eye 1 \
+    --save_root workspace/ljf \
+    --fill_eye_holes \
+    --to_metahuman 1
+```
 
 ## Contact
 If you have any questions or are interested in collaboration, please contact Yuxuan Han (hanyx22@mails.tsinghua.edu.cn).

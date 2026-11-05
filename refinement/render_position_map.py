@@ -185,6 +185,10 @@ class DiffusionSampler:
         scale = 2 / scale
         self.canonical_offset = offset[..., None, None]
         self.canonical_scale = scale[..., None, None]
+        from refinement.volume_texture import file_sha256
+        with open(os.path.join(opt.save_root, 'normalization.json'), 'w') as stream:
+            json.dump(dict(offset=offset.cpu().tolist(), scale=float(scale.item()),
+                           mesh_sha256=file_sha256(mesh_uv_path)), stream, indent=2)
         
         # # debug usage
         # can_vertices = can_vertices * scale

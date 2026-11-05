@@ -1,4 +1,7 @@
 import os
+import sys
+from pathlib import Path
+sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 import numpy as np
 import math
 import trimesh
@@ -20,6 +23,7 @@ parser.add_argument('--data_root', type=str, default="xxx")
 parser.add_argument('--save_root', type=str, default="xxx")
 parser.add_argument('--ldm_type', type=str, default="eyelid", choices=["ibug", "eyelid", "interp"])
 parser.add_argument('--close_eye', type=int, default=1)
+parser.add_argument('--appearance_path', type=str, required=True)
 opt, _ = parser.parse_known_args()
 
 
@@ -335,20 +339,25 @@ else:
 # render point map
 #########################
 device = torch.device("cuda:0")
-mesh = trimesh.load_mesh(os.path.join(opt.data_root, "align_canonical.obj"))
+from registration.volume_texture import VolumeTextureAppearance, appearance_mesh
+geometry_path = str(appearance_mesh(opt.appearance_path))
+appearance = VolumeTextureAppearance(opt.appearance_path, device)
+mesh = trimesh.load_mesh(geometry_path)
+# Wrap's LoadGeom accepts OBJ, but not PLY. Convert only at this interface;
+# no vertex colors are baked or carried into this geometry-only adapter.
+wrap_geometry_path = os.path.join(wrap_root, 'target_geometry.obj')
+trimesh.Trimesh(vertices=mesh.vertices, faces=mesh.faces, process=False).export(wrap_geometry_path)
 vertices = torch.from_numpy(mesh.vertices).to(device).float()  # [v,3]
 faces = torch.from_numpy(mesh.faces).to(device)  # [f,3]
-vertices_color = torch.from_numpy(mesh.visual.vertex_colors[:, :3]).to(device).float() / 255.  # [v,3]
 vertices = vertices[None, ...]  # [1,v,3]
 faces = faces[None, ...]  # [1,v,3]
-vertices_color = vertices_color[None, ...]  # [1,v,3]
 
 mesh_renderer = MeshRenderer(device=device)
 
 mesh_dict = {
 	"faces": faces,
 	"vertice": vertices,
-	"attributes": torch.cat([vertices, vertices_color], dim=-1),
+	"attributes": torch.cat([vertices, torch.ones_like(vertices[..., :1])], dim=-1),
 	"size": (512, 512),
 }
 
@@ -361,11 +370,16 @@ cam_pose[:3, :3] = cam_rot
 cam_pose[:3, 3] = cam_trans
 cam_pose = torch.from_numpy(cam_pose).float().to(device)
 
-res, _ = mesh_renderer.render_mesh(
+res, pix_to_face = mesh_renderer.render_mesh(
 	mesh_dict, intrinsic_rel[None, ...], torch.inverse(cam_pose)[None, :3]
 )
 res_save_path = os.path.join(wrap_root, "rendered.png")
-save_image(res[:, 3:6], res_save_path)
+visible = (pix_to_face[..., 0] >= 0).unsqueeze(1)
+rgb = appearance.render(res[:, :3], visible)
+torch.save(res[:, :3].cpu(), os.path.join(wrap_root, 'frontal_xyz.pt'))
+save_image(visible.float(), os.path.join(wrap_root, 'frontal_mask.png'))
+save_image(rgb, os.path.join(wrap_root, 'frontal_rgb.png'))
+save_image(rgb, res_save_path)
 res_cv2 = cv2.imread(res_save_path)
 
 eyelid_landmark = wrap_landmark_detector.detect(res_cv2)
@@ -417,7 +431,7 @@ with open("assets/template_all_wrap.wrap", "r") as f:
 	wrap_cfg = json.load(f)
 
 wrap_cfg["nodes"]["LoadGeom"]["params"]["fileName"]["value"] = os.path.abspath(mesh_pth)
-wrap_cfg["nodes"]["LoadGeom1"]["params"]["fileName"]["value"] = os.path.abspath(os.path.join(opt.data_root, "align_canonical.obj"))
+wrap_cfg["nodes"]["LoadGeom1"]["params"]["fileName"]["value"] = os.path.abspath(wrap_geometry_path)
 wrap_cfg["nodes"]["LoadPoints"]["params"]["fileName"]["value"] = os.path.join(wrap_root, "bfm.json")
 wrap_cfg["nodes"]["LoadPoints1"]["params"]["fileName"]["value"] = os.path.join(wrap_root, "tgt.json")
 wrap_cfg["nodes"]["SaveGeom"]["params"]["fileName"]["value"] = os.path.join(wrap_root, "final_hack.obj")

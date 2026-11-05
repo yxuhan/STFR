@@ -8,6 +8,8 @@ parser.add_argument('--num_view', type=int, default=16)
 parser.add_argument('--syn', type=int, default=1)
 parser.add_argument('--vis_freq', type=int, default=50)
 parser.add_argument('--data_root', type=str, default="xxx")
+parser.add_argument('--mesh_name', type=str, default="final_hack.obj")
+parser.add_argument('--variant', type=str, default="")
 
 opt, _ = parser.parse_known_args()
 
@@ -152,8 +154,8 @@ class MetaShapeDataset(Dataset):
         self.num_frames = len(self.frames)
 
         image_dir = os.path.join(self.id_root, opt.img_name)
-        mask_dir = os.path.join(self.id_root, "uv_mask")
-        uv_dir = os.path.join(self.id_root, "uv")
+        mask_dir = os.path.join(self.id_root, opt.variant, "uv_mask")
+        uv_dir = os.path.join(self.id_root, opt.variant, "uv")
 
         # load per-frame meta information
         self.cam2world = []
@@ -228,7 +230,7 @@ class MetaShapeDataset(Dataset):
 class DiffusionSampler:
     def __init__(self, opt):
         self.device = "cuda"
-        self.log_dir = os.path.join(opt.data_root, "texture", opt.img_name)
+        self.log_dir = os.path.join(opt.data_root, opt.variant, "texture", opt.img_name)
         self.gamma = 2.2
 
         # set dataset
@@ -255,7 +257,7 @@ class DiffusionSampler:
 
         self.mesh_renderer = MeshRenderer(self.device)
         data_root = os.path.dirname(opt.meta_file_path)
-        self.mesh_path = os.path.join(data_root, "final_hack.obj")
+        self.mesh_path = os.path.join(data_root, opt.mesh_name)
         self._load_geometry(self.mesh_path)
 
         self.loss_weight_img = self.compute_loss_weight()

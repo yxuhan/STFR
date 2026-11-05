@@ -1,0 +1,104 @@
+{
+  "schema_version": 1,
+  "convention": "column vectors: target_xyz = scale * rotation @ source_xyz + translation",
+  "scale": 100.0,
+  "rotation": [
+    [
+      0,
+      0,
+      -1
+    ],
+    [
+      -1,
+      0,
+      0
+    ],
+    [
+      0,
+      1,
+      0
+    ]
+  ],
+  "translation": [
+    0.0,
+    0.0,
+    200.0
+  ],
+  "matrix_4x4": [
+    [
+      0.0,
+      0.0,
+      -100.0,
+      0.0
+    ],
+    [
+      -100.0,
+      0.0,
+      0.0,
+      0.0
+    ],
+    [
+      0.0,
+      100.0,
+      0.0,
+      200.0
+    ],
+    [
+      0.0,
+      0.0,
+      0.0,
+      1.0
+    ]
+  ],
+  "axis_mapping": [
+    "X = -100*z",
+    "Y = -100*x",
+    "Z = 100*y + 200"
+  ],
+  "reference": {
+    "source_name": "eyes_filled_uv.obj",
+    "target_name": "eyes_filled_uv_ue5.obj",
+    "source_sha256": "78e62047705e7a090b0d4cf0bbd46f5c91bf9a0815194cdb6a6e9b6e9be160ff",
+    "target_sha256": "9cc9f15402a2f312fc84c0cf52a5a40a708e53a93da50690578b573640663908",
+    "vertex_count": 6528,
+    "indexed_topology_matches": true
+  },
+  "validation": {
+    "exact_transform": {
+      "rmse": 9.991413314307402e-06,
+      "maximum": 2.4433583444249163e-05,
+      "mean": 9.237840250904909e-06,
+      "target_bbox_diagonal": 171.1736678698563
+    },
+    "unconstrained_fit": {
+      "scale": 99.99998408664901,
+      "rotation": [
+        [
+          9.500282420024675e-08,
+          2.144604389514862e-08,
+          -0.9999999999999967
+        ],
+        [
+          -0.9999999999999937,
+          6.67340818241732e-08,
+          -9.500282370662821e-08
+        ],
+        [
+          6.673407980558415e-08,
+          0.9999999999999976,
+          2.14460506991632e-08
+        ]
+      ],
+      "translation": [
+        -7.574507066010483e-08,
+        1.7769851182736218e-06,
+        200.00000216084348
+      ],
+      "rmse": 5.613685661543884e-06,
+      "maximum": 1.6376491360140964e-05,
+      "mean": 5.014414742561175e-06,
+      "target_bbox_diagonal": 171.1736678698563
+    },
+    "note": "Exact axis rotations/translation retained; residuals are consistent with OBJ float rounding."
+  }
+}

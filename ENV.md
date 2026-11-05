@@ -21,13 +21,16 @@ pip install --no-build-isolation \
     plyfile \
     matplotlib==3.7.0 \
     lpips \
-    tensorboard \
+    tensorboard==2.14.1 \
     mediapy \
     open3d \
     scikit-image==0.25.2 \
     iopath \
     yacs \
     face_alignment
+
+# Optional eye-cap UV island packing (task 1)
+pip install shapely==2.1.2
 
 # install chumpy
 pip install git+https://github.com/mattloper/chumpy.git@master --no-build-isolation

@@ -17,7 +17,7 @@ meta_file_path = os.path.join(opt.data_root, "register/fine_align/align_canonica
 reg_geo_path = os.path.join(opt.data_root, "register/wrap/final_hack.obj")
 sharp_frame_root = os.path.join(opt.data_root, "refinement/sample/image")
 
-os.system("cp -r %s %s" % (sharp_frame_root, opt.save_root))
+shutil.copytree(sharp_frame_root, os.path.join(opt.save_root, 'image'), dirs_exist_ok=True)
 shutil.copy(reg_geo_path, os.path.join(opt.save_root, "final_hack.obj"))
 
 with open(meta_file_path, 'r') as f:

@@ -3,6 +3,7 @@ import argparse
 import torch
 import math
 import json
+import shutil
 
 
 parser = argparse.ArgumentParser(formatter_class=argparse.ArgumentDefaultsHelpFormatter)
@@ -43,7 +44,7 @@ while left + 1 < num_img:
             max_sharp = cur_sharp
             max_path = cur_pth
             max_idx = i
-    os.system("cp %s %s" % (os.path.join(raw_frame_root, max_path), os.path.join(img_root, max_path)))
+    shutil.copy2(os.path.join(raw_frame_root, max_path), os.path.join(img_root, max_path))
     new_frames.append(frames[max_idx])
 
     left = right

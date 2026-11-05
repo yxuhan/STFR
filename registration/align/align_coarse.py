@@ -27,6 +27,7 @@ parser.add_argument('--img_root', type=str)
 parser.add_argument('--mesh_path', type=str)
 parser.add_argument('--cam_path', type=str)
 parser.add_argument('--save_root', type=str)
+parser.add_argument('--appearance_path', type=str, required=True)
 opt = parser.parse_args()
 
 opt, _ = parser.parse_known_args()
@@ -244,12 +245,12 @@ torch.save(
 )
 
 re_scale = 1 / s
-save_mesh = trimesh.Trimesh(
-	mesh.vertices * re_scale,
-	mesh.faces,
-	visual=mesh.visual
-)
-save_mesh.export(os.path.join(opt.save_root, "align_scaled.obj"))
+from registration.volume_texture import transform_appearance
+scaled_path = os.path.join(opt.save_root, 'align_scaled.ply')
+trimesh.Trimesh(vertices=mesh.vertices * re_scale, faces=mesh.faces, process=False).export(scaled_path)
+frame_change = np.eye(4)
+frame_change[:3, :3] *= re_scale
+transform_appearance(opt.appearance_path, os.path.join(opt.save_root, 'appearance.json'), scaled_path, frame_change)
 
 frames = meta["frames"]
 for f_id in tqdm(range(len(frames))):

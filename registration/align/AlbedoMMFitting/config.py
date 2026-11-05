@@ -91,6 +91,7 @@ def parse_args():
 
     # for align mesh
     parser.add_argument('--fitting_pkl_path', type=str, default="")
+    parser.add_argument('--appearance_path', type=str, default="")
 
     args = parser.parse_args()
     print(args, end='\n\n')
@@ -108,6 +109,7 @@ def parse_args():
     cfg.coarse_fitting_root = args.coarse_fitting_root
 
     cfg.fitting_pkl_path = args.fitting_pkl_path
+    cfg.appearance_path = args.appearance_path
 
     return cfg
 

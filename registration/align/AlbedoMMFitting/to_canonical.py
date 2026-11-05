@@ -4,6 +4,9 @@ rigid transform the coordinate of Metashape camera to ensure the solved mesh in 
 
 
 import os
+import sys
+from pathlib import Path
+sys.path.insert(0, str(Path(__file__).resolve().parents[3]))
 import argparse
 import numpy as np
 import torch
@@ -22,7 +25,8 @@ opt = config
 meta_file_path = os.path.join(opt.coarse_fitting_root, "align_scaled.json")
 meta_file_save_path = os.path.join(opt.save_root, "align_canonical.json")
 
-ms_mesh_path = os.path.join(opt.coarse_fitting_root, "align_scaled.obj")
+from registration.volume_texture import appearance_mesh, transform_appearance
+ms_mesh_path = appearance_mesh(opt.appearance_path)
 ms_mesh = trimesh.load(ms_mesh_path, process=False)
 ms_verts = ms_mesh.vertices
 ms_faces = ms_mesh.faces
@@ -84,10 +88,13 @@ ms_verts = (rot_mat @ ms_verts[..., None])[..., 0]
 ms_verts = ms_verts - trans
 ms_verts = ms_verts / scale * 5.
 
-trimesh.Trimesh(
-    vertices=ms_verts, faces=ms_faces, 
-    visual=ms_mesh.visual
-).export(os.path.join(opt.save_root, "align_canonical.obj"))
+canonical_path = os.path.join(opt.save_root, 'align_canonical.ply')
+trimesh.Trimesh(vertices=ms_verts, faces=ms_faces, process=False).export(canonical_path)
+frame_change = np.eye(4)
+frame_change[:3, :3] = rot_mat[0] * (5. / scale)
+frame_change[:3, 3] = -trans * (5. / scale)
+transform_appearance(opt.appearance_path, os.path.join(opt.save_root, 'appearance.json'),
+                     canonical_path, frame_change)
 
 t1 = -trans[..., None]
 r1 = rot_mat[0]
