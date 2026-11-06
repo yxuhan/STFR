@@ -10,18 +10,8 @@ def build_steps(options):
     root = Path(options.save_root).resolve()
     dataset = root
     plan = Plan(PROJECT)
-    variant = "eye_filled" if options.tex_fill_eye_holes else ""
-    mesh = dataset / (
-        "final_hack_eyes_filled.obj" if options.tex_fill_eye_holes else "final_hack.obj"
-    )
-    if options.tex_fill_eye_holes:
-        plan.python(
-            "tex.eye_caps",
-            "texture/fill_eye_holes.py",
-            ["--input", dataset / "final_hack.obj", "--output", mesh],
-            [dataset / "final_hack.obj"],
-            [mesh, mesh.with_suffix(".eye_caps.json")],
-        )
+    variant = ""
+    mesh = dataset / "final_hack.obj"
     base = dataset / variant
     common = ["--data_root", dataset, "--mesh_name", mesh.name, "--variant", variant]
     plan.python(
@@ -41,12 +31,7 @@ def build_steps(options):
         [base / "texture"],
     )
     if options.to_metahuman:
-        mesh = dataset / (
-            "final_hack_eyes_filled.obj" if options.tex_fill_eye_holes else "final_hack.obj"
-        )
-        args = ["--data_root", dataset] + (
-            ["--fill_eye_holes"] if options.tex_fill_eye_holes else []
-        )
+        args = ["--data_root", dataset]
         plan.python(
             "export.metahuman",
             "metahuman.py",

@@ -21,8 +21,8 @@ python extraction/run_extraction.py --data_root workspace/person --video_path da
 python matting/run_stage.py --data_root workspace/person --device 0
 python reconstruction/run_reconstruction.py --data_root workspace/person --device 0 --gs_port 6010
 python refinement/run_refinement.py --data_root workspace/person --device 0
-python registration/run_registration.py --data_root workspace/person --device 0 --close_eye 0
-python texture/run_texture.py --data_root workspace/person/sample_dataset --device 0 --fill_eye_holes --to_metahuman 1
+python registration/run_registration.py --data_root workspace/person --device 0 --reg_template fill
+python texture/run_texture.py --data_root workspace/person/sample_dataset --device 0 --to_metahuman 1
 ```
 
 `reconstruction/run_colmap.py --data_root workspace/person` runs only camera
@@ -42,7 +42,7 @@ is sufficient to run the corresponding stage independently of earlier code.
 | Reconstruction | raw frames and masks | `images/`, COLMAP database/model, `recon/`, `2dgs_recon.obj`, `transforms.json` |
 | Refinement | raw frames, mesh, camera transforms | selected images, normalized xyz maps, `sample/normalization.json`, `texture/latest.pth`, `appearance.json`, all under `refinement/` |
 | Registration | mesh, camera transforms, raw frames, volume checkpoint, selected images; normalization JSON when available | coarse/fine binary PLY geometry and appearance JSON, fitted cameras, frontal RGB/xyz/mask, 3D landmarks, Wrap mesh, `sample_dataset/` |
-| Texture | `sample_dataset/final_hack.obj`, images and camera transforms | optional eye-cap mesh, UV buffers, optimized `texture/image/00150/uv.png` (under `eye_filled/` with caps) |
+| Texture | `sample_dataset/final_hack.obj`, images and camera transforms | UV buffers, optimized `texture/image/00150/uv.png` |
 | MetaHuman export | final UV mesh, calibration JSON | `_metahuman.obj` and `.transform.json` |
 
 Registration can consume checkpoints from existing runs: if their normalization

@@ -96,12 +96,14 @@ def build_steps(options):
             wrap,
             "--ldm_type",
             options.reg_ldm_type,
-            "--close_eye",
-            options.reg_close_eye,
+            "--reg_template",
+            options.reg_template,
             "--appearance_path",
             fine / "appearance.json",
         ],
-        [fine / "appearance.json", fine / "align_canonical.ply"],
+        [fine / "appearance.json", fine / "align_canonical.ply",
+         PROJECT / "registration/assets" / (options.reg_template + "_eye_template.obj")]
+        + ([PROJECT / "registration/assets/fill_eye_landmarks.json"] if options.reg_template == "fill" else []),
         [
             wrap / "wrap.wrap",
             wrap / "tgt.json",

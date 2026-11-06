@@ -34,12 +34,9 @@ def build_plan(options, sections):
         "refine": ("refinement/run_refinement.py", []),
         "reg": (
             "registration/run_registration.py",
-            ["--close_eye", str(options.reg_close_eye), "--ldm_type", options.reg_ldm_type],
+            ["--reg_template", options.reg_template, "--ldm_type", options.reg_ldm_type],
         ),
-        "tex": (
-            "texture/run_texture.py",
-            ["--fill_eye_holes"] if options.tex_fill_eye_holes else [],
-        ),
+        "tex": ("texture/run_texture.py", []),
     }
     steps = []
     for stage in sections:
@@ -67,12 +64,12 @@ def build_plan(options, sections):
             steps.append(Step(**item))
     if options.to_metahuman:
         dataset = root / "sample_dataset"
-        name = "final_hack_eyes_filled" if options.tex_fill_eye_holes else "final_hack"
+        name = "final_hack"
         plan = Plan(PROJECT)
         plan.python(
             "export.metahuman",
             "metahuman.py",
-            ["--data_root", dataset] + (["--fill_eye_holes"] if options.tex_fill_eye_holes else []),
+            ["--data_root", dataset],
             [dataset / (name + ".obj"), PROJECT / "misc/metahuman_transform.json"],
             [dataset / (name + "_metahuman.obj"), dataset / (name + "_metahuman.transform.json")],
         )
@@ -87,18 +84,13 @@ def main():
     parser.add_argument("--max_image_size", type=int, default=960)
     parser.add_argument("--save_root", "--data_root", dest="save_root", default="workspace/0227")
     parser.add_argument("--func", default="extract-mat-recon-refine-reg-tex")
-    parser.add_argument(
-        "--reg_close_eye", "--close_eye", dest="reg_close_eye", type=int, choices=[0, 1], default=0
-    )
+    parser.add_argument("--reg_template", choices=["close", "open", "fill"], default="open")
     parser.add_argument(
         "--reg_ldm_type",
         "--ldm_type",
         dest="reg_ldm_type",
         choices=["ibug", "eyelid", "interp"],
         default="eyelid",
-    )
-    parser.add_argument(
-        "--tex_fill_eye_holes", "--fill_eye_holes", dest="tex_fill_eye_holes", action="store_true"
     )
     parser.add_argument("--to_metahuman", type=int, choices=[0, 1], default=0)
     parser.add_argument("--device", default=os.environ.get("CUDA_VISIBLE_DEVICES", "0"))
@@ -171,8 +163,8 @@ def main():
         )
         return 1
     dataset = Path(options.save_root) / "sample_dataset"
-    name = "final_hack_eyes_filled" if options.tex_fill_eye_holes else "final_hack"
-    variant = "eye_filled" if options.tex_fill_eye_holes else ""
+    name = "final_hack"
+    variant = ""
     available = lambda path: str(path) if path.is_file() else None
     atomic_json(
         Path(options.save_root) / "outputs.json",

@@ -29,9 +29,6 @@ pip install --no-build-isolation \
     yacs \
     face_alignment
 
-# Optional eye-cap UV island packing (task 1)
-pip install shapely==2.1.2
-
 # install chumpy
 pip install git+https://github.com/mattloper/chumpy.git@master --no-build-isolation
 

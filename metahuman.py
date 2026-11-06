@@ -106,10 +106,10 @@ def transform_obj(source, output, transform_path=DEFAULT_TRANSFORM):
                 transform=str(Path(transform_path).resolve()))
 
 
-def export_final_mesh(data_root, fill_eye_holes=False):
+def export_final_mesh(data_root):
     """Export from the canonical source each time, so reruns never compound sRT."""
     dataset = Path(data_root)
-    name = 'final_hack_eyes_filled' if fill_eye_holes else 'final_hack'
+    name = 'final_hack'
     source = dataset / (name + '.obj')
     if not source.is_file():
         raise FileNotFoundError(f'Cannot export MetaHuman geometry: {source} is missing')
@@ -123,12 +123,11 @@ def export_final_mesh(data_root, fill_eye_holes=False):
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--data_root', type=Path, help='Registered sample_dataset directory')
-    parser.add_argument('--fill_eye_holes', action='store_true')
     parser.add_argument('--input', type=Path, help='Alternatively transform a specific OBJ')
     parser.add_argument('--output', type=Path)
     args = parser.parse_args()
     if args.data_root is not None and args.input is None and args.output is None:
-        report = export_final_mesh(args.data_root, args.fill_eye_holes)
+        report = export_final_mesh(args.data_root)
     elif args.input is not None and args.output is not None and args.data_root is None:
         report = transform_obj(args.input, args.output)
     else:

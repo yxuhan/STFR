@@ -22,12 +22,12 @@ parser = argparse.ArgumentParser(formatter_class=argparse.ArgumentDefaultsHelpFo
 parser.add_argument('--data_root', type=str, default="xxx")
 parser.add_argument('--save_root', type=str, default="xxx")
 parser.add_argument('--ldm_type', type=str, default="eyelid", choices=["ibug", "eyelid", "interp"])
-parser.add_argument('--close_eye', type=int, default=1)
+parser.add_argument('--reg_template', choices=['close', 'open', 'fill'], default='open')
 parser.add_argument('--appearance_path', type=str, required=True)
 opt, _ = parser.parse_known_args()
 
 
-def load_ict_model(device = torch.device('cpu'), close_eye=True):
+def load_ict_model(device = torch.device('cpu'), template='open'):
 	# origin ICT, see https://github.com/ICT-VGL/ICT-FaceKit
 	# lm_index = np.array([
 	#     1225, 1888, 1052, 367, 1719, 1722, 2199, 1447, 966, 3661, 4390, 3927, 3924, 2608, 3272, 4088, 3443, 268, 493, 1914, 2044, 1401, 3615, 4240, 4114, 2734, 2509, 978, 4527, 4942, 4857, 1140, 2075, 1147, 4269, 3360, 1507, 1542, 1537, 1528, 1518, 1511, 3742, 3751, 3756, 3721, 3725, 3732, 5708, 5695, 2081, 0, 4275, 6200, 6213, 6346, 6461, 5518, 5957, 5841, 5702, 5711, 5533, 6216, 6207, 6470, 5517, 5966,
@@ -35,7 +35,7 @@ def load_ict_model(device = torch.device('cpu'), close_eye=True):
 	# mesh_pth = "ICT/ict_origin.obj"  # origin ICT
 
 	# ICT remove cavaity
-	if close_eye:
+	if template == 'close':
 		lm_index = np.array([
 			# contour
 			1225, 1888, 1052, 367, 1719, 1722, 2199, 1447, 966, 3661, 4390, 3927, 3924, 2608, 3272, 4088, 3443, 
@@ -72,13 +72,16 @@ def load_ict_model(device = torch.device('cpu'), close_eye=True):
 		])
 		mesh_pth = "assets/open_eye_template.obj"
 
+	if template == 'fill':
+		lm_index = np.asarray(json.loads(Path('assets/fill_eye_landmarks.json').read_text())['ibug'])
+		mesh_pth = 'assets/fill_eye_template.obj'
 	lm_index = torch.from_numpy(lm_index).long().to(device)
 	ict_mesh = load_objs_as_meshes([mesh_pth], device=device)
 	# norm_mesh, _ = normalize_mesh(ict_mesh)
 	return ict_mesh, lm_index[None, ...]
 
 
-def load_ict_model_eyelid(device = torch.device('cpu'), close_eye=True):
+def load_ict_model_eyelid(device = torch.device('cpu'), template='open'):
 	# origin ICT, see https://github.com/ICT-VGL/ICT-FaceKit
 	# lm_index = np.array([
 	#     1225, 1888, 1052, 367, 1719, 1722, 2199, 1447, 966, 3661, 4390, 3927, 3924, 2608, 3272, 4088, 3443, 268, 493, 1914, 2044, 1401, 3615, 4240, 4114, 2734, 2509, 978, 4527, 4942, 4857, 1140, 2075, 1147, 4269, 3360, 1507, 1542, 1537, 1528, 1518, 1511, 3742, 3751, 3756, 3721, 3725, 3732, 5708, 5695, 2081, 0, 4275, 6200, 6213, 6346, 6461, 5518, 5957, 5841, 5702, 5711, 5533, 6216, 6207, 6470, 5517, 5966,
@@ -86,7 +89,7 @@ def load_ict_model_eyelid(device = torch.device('cpu'), close_eye=True):
 	# mesh_pth = "ICT/ict_origin.obj"  # origin ICT
 
 	# ICT remove cavaity
-	if close_eye:
+	if template == 'close':
 		lm_index = np.array([
 			# contour 17
 			1225, 1888, 1052, 367, 1719, 1722, 2199, 1447, 966, 3661, 4390, 3927, 3924, 2608, 3272, 4088, 3443, 
@@ -135,6 +138,9 @@ def load_ict_model_eyelid(device = torch.device('cpu'), close_eye=True):
 		])
 		mesh_pth = "assets/open_eye_template.obj"
 
+	if template == 'fill':
+		lm_index = np.asarray(json.loads(Path('assets/fill_eye_landmarks.json').read_text())['eyelid'])
+		mesh_pth = 'assets/fill_eye_template.obj'
 	lm_index = torch.from_numpy(lm_index).long().to(device)
 	ict_mesh = load_objs_as_meshes([mesh_pth], device=device)
 	# norm_mesh, _ = normalize_mesh(ict_mesh)
@@ -405,16 +411,11 @@ with open(os.path.join(wrap_root, "tgt.json"), "w") as f:
 
 ##############
 # proces template
-bfm_meshes, bfm_lm_index = load_template_func(
-	torch.device('cuda:0'), close_eye=(opt.close_eye==1)
+ict_mesh, bfm_lm_index = load_template_func(
+	torch.device('cuda:0'), template=opt.reg_template
 )
 bfm_data = []
-if opt.close_eye == 1:
-	mesh_pth = "assets/close_eye_template.obj"  # ICT remove cavaity
-else:
-	mesh_pth = "assets/open_eye_template.obj"
-
-ict_mesh = load_objs_as_meshes([mesh_pth], device=device)
+mesh_pth = f"assets/{opt.reg_template}_eye_template.obj"
 for i in range(len(bfm_lm_index[0])):
 	if i < 17: continue  # contour
 	if i >= mouth_inner_min and i < mouth_inner_max: continue  # mouth inner
