@@ -61,9 +61,9 @@ def build_steps(options):
     )
     plan.python(
         "reg.flame_fit",
-        "registration/align/AlbedoMMFitting/fitting.py",
+        "registration/align/AlbedoMMFitting/robust_fitting.py",
         ["--img_root", raw, "--coarse_fitting_root", coarse, "--save_root", fine],
-        [raw, coarse / "align_init.pkl", coarse / "align_scaled.json"],
+        [raw, coarse / "align_scaled.json"],
         [fine / "fitting.pkl"],
         [fine],
     )
@@ -136,10 +136,7 @@ def build_steps(options):
         ],
         "reg.flame_fit": [
             "registration/align/AlbedoMMFitting/config.py",
-            "registration/align/AlbedoMMFitting/util.py",
             "registration/align/AlbedoMMFitting/face_detector.py",
-            "registration/align/AlbedoMMFitting/mesh_renderer.py",
-            "registration/align/AlbedoMMFitting/render_utils.py",
         ],
         "reg.canonical_space": [
             "registration/volume_texture.py",
